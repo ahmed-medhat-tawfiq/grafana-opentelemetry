@@ -26,6 +26,8 @@ services:
       logging: "promtail"
       logging_jobname: "containerlogs"
     logging: *default-logging
+    networks:
+      - traces
 
   invoice-service:
     build: ./invoice-service
@@ -45,6 +47,8 @@ services:
       logging: "promtail"
       logging_jobname: "containerlogs"
     logging: *default-logging
+    networks:
+      - traces
 
   promtail:
     image: grafana/promtail:2.9.2

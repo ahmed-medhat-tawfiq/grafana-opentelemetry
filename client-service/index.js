@@ -1,34 +1,42 @@
 const express = require('express');
-const uuid = require('uuid');
 const axios = require('axios');
-
 const app = express();
+const { trace, SpanStatusCode } = require('@opentelemetry/api');
+const PORT = process.env.PORT || 3000;
+require('./tracing');
 
-// Middleware to parse JSON data
-app.use(express.json());
+// Mock data
+const clients = [
+  { id: 1, name: 'Client A' },
+  { id: 2, name: 'Client B' },
+];
 
-// GET /healthcheck endpoint
-app.get('/healthcheck', (req, res) => {
-  res.sendStatus(200);
+// curl http://localhost:3001/clients/1/invoices
+app.get('/clients/:id/invoices', async (req, res) => {
+
+  const tracer = trace.getTracer('client-service');
+
+  // Start a new trace with a root span for this request
+  const span = tracer.startSpan('handle /client/:id/invoices');
+  try {
+    const { id } = req.params;
+    // Wrap external calls or significant operations in child spans
+    span.addEvent('Fetching client invoices');
+    const response = await axios.get(`http://invoice-service:3000/invoices?clientId=${id}`);
+
+    // Simulate processing
+    span.addEvent('Processing invoices for client');
+
+    res.json(response.data);
+    span.setStatus({ code: SpanStatusCode.OK });
+  } catch (error) {
+    span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });
+    res.status(500).send("Failed to fetch client's invoices");
+  } finally {
+    span.end(); // Ensure the span is ended
+  }
 });
 
-// POST /invoices endpoint
-app.post('/invoices', (req, res) => {
-  const { name, amount, clientId } = req.body;
-
-  // Generate invoice key (you can replace this with your own logic)
-  const invoiceKey = generateInvoiceKey();
-
-  // Return the invoice key
-  res.json({ invoiceKey });
-});
-
-// Helper function to generate invoice key
-function generateInvoiceKey() {
-  return uuid.v4();
-}
-
-// Start the server
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(PORT, () => {
+  console.log(`Client Service running on port ${PORT}`);
 });

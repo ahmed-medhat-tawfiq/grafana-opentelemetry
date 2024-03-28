@@ -20,4 +20,4 @@ COPY . .
 EXPOSE 3000
 
 # Run the app using nodemon
-CMD ["nodemon", "./index.js"]
+CMD [ "nodemon", "-r", "./tracing.js", "index.js" ]

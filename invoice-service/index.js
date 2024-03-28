@@ -1,33 +1,21 @@
 const express = require('express');
-const uuid = require('uuid');
-
 const app = express();
+const PORT = process.env.PORT || 3000;
 
-// Middleware to parse JSON data
-app.use(express.json());
+// Mocked data
+const invoices = [
+  { id: 1, clientId: 1, amount: 100 },
+  { id: 2, clientId: 2, amount: 200 },
+  { id: 3, clientId: 1, amount: 300 },
+];
 
-// GET /healthcheck endpoint
-app.get('/healthcheck', (req, res) => {
-  res.sendStatus(200);
+app.get('/invoices', (req, res) => {
+  const { clientId } = req.query;
+  const clientInvoices = invoices.filter(invoice => invoice.clientId == clientId);
+  console.log(`Invoices requested for client ID: ${clientId}`);
+  res.json(clientInvoices);
 });
 
-// POST /invoices endpoint
-app.post('/invoices', (req, res) => {
-  const { name, amount, clientId } = req.body;
-
-  // Generate invoice key (you can replace this with your own logic)
-  const invoiceKey = generateInvoiceKey();
-
-  // Return the invoice key
-  res.json({ invoiceKey });
-});
-
-// Helper function to generate invoice key
-function generateInvoiceKey() {
-  return uuid.v4();
-}
-
-// Start the server
-app.listen(3000, () => {
-  console.log('Server is running on port 3000');
+app.listen(PORT, () => {
+  console.log(`Invoice Service running on port ${PORT}`);
 });
