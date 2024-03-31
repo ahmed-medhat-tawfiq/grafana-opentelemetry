@@ -11,14 +11,17 @@ const invoices = [
   { id: 2, clientId: 2, amount: 200 },
   { id: 3, clientId: 1, amount: 300 },
 ];
+const tenant = 'companyOne';
 
 app.get('/invoices', (req, res) => {
   const tracer = trace.getTracer('invoice-service');
-  const span = tracer.startSpan('handle /invoices');
+  const span = tracer.startSpan('GetInvoices', {
+    kind: 1,
+    attributes: { tenant, userKey: 'xxx', details: { 'filter': JSON.stringify(req.query) } },
+  });
 
-  const currentSpan = trace.getSpan(trace.getSpanContext(context.active()));
-  const traceId = currentSpan ? currentSpan.spanContext().traceId : 'undefined';
-  const spanId = currentSpan ? currentSpan.spanContext().spanId : 'undefined';
+  const traceId = span.spanContext().traceId;
+  const spanId = span.spanContext().spanId;
 
   const { clientId } = req.query;
   try {
@@ -26,7 +29,9 @@ app.get('/invoices', (req, res) => {
     console.log(JSON.stringify({
       traceId,
       spanId,
-      msg: `Invoices requested for client ID: ${clientId}`
+      level: 'INFO',
+      tenant,
+      msg: `Invoices requested for client ID : ${clientId}`
     }));
 
     span.addEvent('Invoices processed');
@@ -36,6 +41,8 @@ app.get('/invoices', (req, res) => {
     console.error(JSON.stringify({
       traceId,
       spanId,
+      level: 'ERROR',
+      tenant,
       msg: `Error processing invoices for client ID: ${clientId}` + error.message
     }));
     span.setStatus({ code: SpanStatusCode.ERROR, message: error.message });

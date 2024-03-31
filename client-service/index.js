@@ -10,19 +10,21 @@ const clients = [
   { id: 1, name: 'Client A' },
   { id: 2, name: 'Client B' },
 ];
+const tenant = 'companyOne';
 
 // curl http://localhost:3001/clients/1/invoices
 app.get('/clients/:id/invoices', async (req, res) => {
 
   const tracer = trace.getTracer('client-service');
-  const span = tracer.startSpan('handle /client/:id/invoices');
-  const currentSpan = trace.getSpan(trace.getSpanContext(context.active()));
-  const traceId = currentSpan ? currentSpan.spanContext().traceId : 'undefined';
-  const spanId = currentSpan ? currentSpan.spanContext().spanId : 'undefined';
+  const span = tracer.startSpan('GetClientInvoices', { kind: 1, attributes: { tenant, userKey: 'xxx', details: { 'clientId': req.params.id } } });
+  const traceId = span.spanContext().traceId;
+  const spanId = span.spanContext().spanId;
 
   console.log(JSON.stringify({
     traceId,
     spanId,
+    level: 'INFO',
+    tenant,
     msg: 'Get Invoice for client' + req.params.id
   }));
 
@@ -34,6 +36,8 @@ app.get('/clients/:id/invoices', async (req, res) => {
     console.log(JSON.stringify({
       traceId,
       spanId,
+      level: 'INFO',
+      tenant,
       msg: 'Fetching invoices for client: ' + id
     }));
 
@@ -45,7 +49,9 @@ app.get('/clients/:id/invoices', async (req, res) => {
     console.log(JSON.stringify({
       traceId,
       spanId,
-      msg: 'Client invoices: ' + response.data
+      level: 'INFO',
+      tenant,
+      msg: 'Client invoices: ' + JSON.stringify(response.data)
     }));
 
     res.json(response.data);
@@ -55,6 +61,8 @@ app.get('/clients/:id/invoices', async (req, res) => {
     console.error(JSON.stringify({
       traceId,
       spanId,
+      level: 'ERROR',
+      tenant,
       msg: 'Failed to fetch client invoices' + error.message
     }));
 

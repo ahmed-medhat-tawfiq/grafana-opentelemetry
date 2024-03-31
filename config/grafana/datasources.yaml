@@ -5,43 +5,63 @@ datasources:
   type: prometheus
   uid: prometheus
   access: proxy
-  orgId: 1
   url: http://prometheus:9090
+  editable: true
   basicAuth: false
   isDefault: false
-  version: 1
-  editable: false
   jsonData:
     httpMethod: GET
 - name: Tempo
   type: tempo
   uid: tempo
   access: proxy
-  orgId: 1
   url: http://tempo:3200
+  editable: true
   basicAuth: false
   isDefault: true
-  version: 1
-  editable: false
-  apiVersion: 1
   jsonData:
-    httpMethod: GET
+    tracesToLogsV2:
+      # Field with an internal link pointing to a logs data source in Grafana.
+      # datasourceUid value must match the uid value of the logs data source.
+      datasourceUid: 'loki'
+      spanStartTimeShift: '-1h'
+      spanEndTimeShift: '1h'
+      tags: ['job', 'instance', 'pod', 'namespace']
+      filterByTraceID: false
+      filterBySpanID: false
+      customQuery: true
+      query: '{job="containerlogs"} |= "$${__span.spanId}"'
+
     serviceMap:
-      datasourceUid: prometheus
+      datasourceUid: 'prometheus'
+    nodeGraph:
+      enabled: true
+    search:
+      hide: false
+    traceQuery:
+      spanStartTimeShift: '-1h'
+      spanEndTimeShift: '1h'
+    spanBar:
+      type: 'Tag'
+      tag: 'http.path'
 - name: Loki
   type: loki
   uid: loki
   access: proxy
-  orgId: 1
   url: http://loki:3100
   basicAuth: false
   isDefault: false
-  version: 1
   editable: true
   jsonData:
     derivedFields:
     - datasourceName: Tempo
-      datasourceUid: tempo
-      matcherRegex: trace_id=(\w+)
+      datasourceUid: tempo  
+      matcherRegex: "traceId\":\"(\\w+)" 
       name: traceID
-      url: '$${__value.raw}'
+      url: $${__value.raw}
+    - matcherRegex: "level\":\"(\\w+)" 
+      name: level
+    - matcherRegex: "tenant\":\"(\\w+)" 
+      name: tenant
+    - matcherRegex: "spanId\":\"(\\w+)" 
+      name: spanId
