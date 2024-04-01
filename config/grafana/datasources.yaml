@@ -59,9 +59,5 @@ datasources:
       matcherRegex: "traceId\":\"(\\w+)" 
       name: traceID
       url: $${__value.raw}
-    - matcherRegex: "level\":\"(\\w+)" 
-      name: level
-    - matcherRegex: "tenant\":\"(\\w+)" 
-      name: tenant
     - matcherRegex: "spanId\":\"(\\w+)" 
       name: spanId
