@@ -38,3 +38,7 @@ scrape_configs:
             spanId: spanId
             level: level
             message: msg
+            tenant: tenant
+      - labels:
+          tenant: tenant
+          level: level
