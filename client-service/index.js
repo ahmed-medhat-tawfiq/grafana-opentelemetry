@@ -54,7 +54,7 @@ app.get('/clients/:id/invoices', async (req, res) => {
       msg: 'Client invoices: ' + JSON.stringify(response.data)
     }));
 
-    res.json(response.data);
+    res.json({ data: response.data, ref: traceId });
     span.setStatus({ code: SpanStatusCode.OK });
   } catch (error) {
 

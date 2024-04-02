@@ -1,11 +1,4 @@
 version: "3.8"
-# https://github.com/ruanbekker/grafana-tempo-loki-tracing/blob/main/payment_service/app.py
-x-logging: &default-logging
-  driver: "json-file"
-  options:
-    max-size: "1m"
-    max-file: "1"
-    tag: "{{.Name}}"
 
 services:
   client-service:
@@ -25,7 +18,6 @@ services:
     labels:
       logging: "promtail"
       logging_jobname: "containerlogs"
-    logging: *default-logging
     networks:
       - traces
 
@@ -46,7 +38,6 @@ services:
     labels:
       logging: "promtail"
       logging_jobname: "containerlogs"
-    logging: *default-logging
     networks:
       - traces
 
@@ -62,7 +53,6 @@ services:
       - loki
     networks:
       - traces
-    logging: *default-logging
 
   grafana:
     image: grafana/grafana:latest
@@ -80,7 +70,6 @@ services:
       - tempo
     networks:
       - traces
-    logging: *default-logging
 
   loki:
     image: grafana/loki:latest
@@ -90,7 +79,6 @@ services:
     command: -config.file=/etc/loki/local-config.yaml
     networks:
       - traces
-    logging: *default-logging
 
   prometheus:
     image: prom/prometheus:v2.48.0
@@ -105,7 +93,6 @@ services:
       - "9090:9090"
     networks:
       - traces
-    logging: *default-logging
 
   tempo:
     image: grafana/tempo:latest
@@ -121,7 +108,6 @@ services:
     command: ["-config.file=/etc/tempo-local.yaml"]
     networks:
       - traces
-    logging: *default-logging
 
 volumes:
   tempo-data:
