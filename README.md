@@ -45,7 +45,7 @@ The output scope is to trace the request lifecycle from the beginning to the end
 
 ![alt text](imgs/image.png)
 
-=======================================================================================
+============================================================
 
 - **Open Grafana http://localhost:3000 and login with `admin`/`admin`**
   - **Go to the `Explore` tab and select `Tempo` datasource**
@@ -53,20 +53,20 @@ The output scope is to trace the request lifecycle from the beginning to the end
 
   ![alt text](imgs/image-1.png)
 
-  ====================================================================================
+  ==========================================================
 
     - **you will show all spans related to the traceId**
     - **you will find in each span attributes and events**
 
     ![alt text](imgs/image-2.png)
 
-    ====================================================================================
+  ==========================================================
 
     - **to show related logs, press on the `Logs for this span` button in the span to show logs in loki**
 
     ![alt text](imgs/image-3.png)
 
-  =======================================================================================
+  ==========================================================
 
 
   - **Go to the `Explore` again tab and select `Loki` datasource**
